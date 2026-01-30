@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>McDonald's Australia Nutrition Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background-color: #F8F8F8;
+            color: #292929;
+        }
+
+        .header {
+            background-color: #DA291C;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .controls {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-container {
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #FFBC0D;
+            border-radius: 25px;
+            font-size: 16px;
+            font-family: 'Barlow', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #DA291C;
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid #FFBC0D;
+            background-color: white;
+            color: #292929;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            background-color: #FFF8E1;
+        }
+
+        .category-btn.active {
+            background-color: #FFBC0D;
+            color: #292929;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #DA291C;
+            background-color: white;
+            color: #DA291C;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background-color: #DA291C;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 160px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #292929;
+            min-height: 44px;
+        }
+
+        .serving-size {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .calories {
+            font-size: 32px;
+            font-weight: 700;
+            color: #DA291C;
+            margin-bottom: 15px;
+        }
+
+        .calories span {
+            font-size: 14px;
+            font-weight: 400;
+            color: #666;
+        }
+
+        .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .macro {
+            text-align: center;
+        }
+
+        .macro-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #292929;
+        }
+
+        .macro-label {
+            font-size: 11px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .secondary-nutrients {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .nutrient-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nutrient-value {
+            font-weight: 600;
+            color: #292929;
+        }
+
+        .footer {
+            background-color: #292929;
+            color: white;
+            padding: 30px 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-results h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .category-filters {
+                justify-content: center;
+            }
+
+            .category-btn {
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>McDonald's Australia Nutrition Calculator</h1>
+        <p>Explore nutritional information for your favorite menu items</p>
+    </div>
+
+    <div class="controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search for menu items...">
+        </div>
+
+        <div class="category-filters" id="categoryFilters">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="beef">Beef</button>
+            <button class="category-btn" data-category="chicken">Chicken & Fish</button>
+            <button class="category-btn" data-category="wraps">Wraps</button>
+            <button class="category-btn" data-category="fries">Fries</button>
+            <button class="category-btn" data-category="breakfast">Breakfast</button>
+            <button class="category-btn" data-category="condiments">Condiments</button>
+            <button class="category-btn" data-category="fruit">Fruit</button>
+        </div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn active" data-view="serving">Per Serving</button>
+            <button class="toggle-btn" data-view="100g">Per 100g</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="product-grid" id="productGrid"></div>
+        <div class="no-results" id="noResults" style="display: none;">
+            <h2>No items found</h2>
+            <p>Try adjusting your search or filter</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p><strong>Data Source:</strong> McDonald's Australia Main Food Menu - January 2026</p>
+        <p>Nutrition information is based on standard product formulations and serving sizes.</p>
+        <p>Actual values may vary. For allergen information and dietary concerns, visit mcdonalds.com.au</p>
+        <p style="margin-top: 15px; opacity: 0.6;">Last Updated: January 2026</p>
+    </div>
+
+    <script>
+        // Product data extracted from PDF
+        const products = [
+            // BEEF
+            {
+                id: "big-mac",
+                name: "Big Mac",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "219g", energyKJ: 2330, energyCal: 557, protein: 24.6, fat: 29.4, saturatedFat: 10.8, carbs: 44.9, sugars: 8.8, sodium: 1140 },
+                    per100g: { energyKJ: 1000, energyCal: 239, protein: 10.6, fat: 12.6, saturatedFat: 4.6, carbs: 19.3, sugars: 3.8, sodium: 490 }
+                }
+            },
+            {
+                id: "double-big-mac",
+                name: "Double Big Mac",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "268g", energyKJ: 3190, energyCal: 762, protein: 39.7, fat: 43.9, saturatedFat: 17.7, carbs: 47.8, sugars: 9.3, sodium: 1489 },
+                    per100g: { energyKJ: 1030, energyCal: 246, protein: 12.8, fat: 13.8, saturatedFat: 5.7, carbs: 15.4, sugars: 3.0, sodium: 480 }
+                }
+            },
+            {
+                id: "cheeseburger",
+                name: "Cheeseburger",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "119g", energyKJ: 1280, energyCal: 306, protein: 14.5, fat: 13.0, saturatedFat: 6.4, carbs: 29.9, sugars: 7.3, sodium: 735 },
+                    per100g: { energyKJ: 1070, energyCal: 257, protein: 12.2, fat: 10.9, saturatedFat: 5.4, carbs: 25.1, sugars: 6.1, sodium: 617 }
+                }
+            },
+            {
+                id: "double-cheeseburger",
+                name: "Double Cheeseburger",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "176g", energyKJ: 1910, energyCal: 457, protein: 24.9, fat: 23.6, saturatedFat: 12.5, carbs: 32.2, sugars: 8.2, sodium: 1120 },
+                    per100g: { energyKJ: 1080, energyCal: 259, protein: 14.1, fat: 13.4, saturatedFat: 7.1, carbs: 18.3, sugars: 4.6, sodium: 635 }
+                }
+            },
+            {
+                id: "triple-cheeseburger",
+                name: "Triple Cheeseburger",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "233g", energyKJ: 2540, energyCal: 607, protein: 35.3, fat: 34.1, saturatedFat: 18.5, carbs: 34.5, sugars: 9.0, sodium: 1457 },
+                    per100g: { energyKJ: 1130, energyCal: 270, protein: 15.7, fat: 15.2, saturatedFat: 8.2, carbs: 15.4, sugars: 4.0, sodium: 649 }
+                }
+            },
+            {
+                id: "quarter-pounder",
+                name: "Quarter Pounder",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "212g", energyKJ: 2230, energyCal: 532, protein: 30.2, fat: 28.7, saturatedFat: 14.9, carbs: 37.2, sugars: 10.5, sodium: 1192 },
+                    per100g: { energyKJ: 1051, energyCal: 251, protein: 14.2, fat: 13.5, saturatedFat: 7.0, carbs: 17.5, sugars: 5.0, sodium: 562 }
+                }
+            },
+            {
+                id: "double-quarter-pounder",
+                name: "Double Quarter Pounder",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "314g", energyKJ: 3370, energyCal: 804, protein: 52.3, fat: 50.6, saturatedFat: 26.8, carbs: 34.2, sugars: 8.3, sodium: 1429 },
+                    per100g: { energyKJ: 1072, energyCal: 256, protein: 16.6, fat: 16.1, saturatedFat: 8.5, carbs: 10.9, sugars: 2.7, sodium: 455 }
+                }
+            },
+            {
+                id: "hamburger",
+                name: "Hamburger",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "105g", energyKJ: 1080, energyCal: 257, protein: 11.6, fat: 9.2, saturatedFat: 3.9, carbs: 29.1, sugars: 6.8, sodium: 572 },
+                    per100g: { energyKJ: 1030, energyCal: 245, protein: 11.1, fat: 8.8, saturatedFat: 3.7, carbs: 27.7, sugars: 6.4, sodium: 545 }
+                }
+            },
+            {
+                id: "classic-angus",
+                name: "Classic Angus",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "312g", energyKJ: 2950, energyCal: 706, protein: 40.1, fat: 39.3, saturatedFat: 18.7, carbs: 46.2, sugars: 9.3, sodium: 1090 },
+                    per100g: { energyKJ: 946, energyCal: 226, protein: 12.8, fat: 12.6, saturatedFat: 6.0, carbs: 14.8, sugars: 3.0, sodium: 351 }
+                }
+            },
+            {
+                id: "bbq-bacon-angus",
+                name: "BBQ Bacon Angus",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "296g", energyKJ: 3320, energyCal: 794, protein: 48.1, fat: 44.0, saturatedFat: 21.0, carbs: 49.9, sugars: 12.4, sodium: 1570 },
+                    per100g: { energyKJ: 1120, energyCal: 269, protein: 16.3, fat: 14.9, saturatedFat: 7.1, carbs: 16.9, sugars: 4.2, sodium: 532 }
+                }
+            },
+            {
+                id: "big-arch",
+                name: "Big Arch",
+                category: "beef",
+                nutrition: {
+                    perServe: { servingSize: "404g", energyKJ: 4480, energyCal: 1071, protein: 55.8, fat: 69.7, saturatedFat: 28.6, carbs: 54.8, sugars: 10.4, sodium: 2020 },
+                    per100g: { energyKJ: 1110, energyCal: 265, protein: 13.8, fat: 17.2, saturatedFat: 7.1, carbs: 13.6, sugars: 2.6, sodium: 499 }
+                }
+            },
+            // CHICKEN AND FISH
+            {
+                id: "mcnuggets-3pc",
+                name: "Chicken McNuggets 3pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "48.5g", energyKJ: 452, energyCal: 108, protein: 6.0, fat: 6.5, saturatedFat: 0.8, carbs: 6.2, sugars: 0.2, sodium: 191 },
+                    per100g: { energyKJ: 931, energyCal: 222, protein: 12.4, fat: 13.4, saturatedFat: 1.6, carbs: 12.7, sugars: 0.4, sodium: 394 }
+                }
+            },
+            {
+                id: "mcnuggets-6pc",
+                name: "Chicken McNuggets 6pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "97g", energyKJ: 905, energyCal: 216, protein: 12.1, fat: 13.0, saturatedFat: 1.6, carbs: 12.4, sugars: 0.4, sodium: 383 },
+                    per100g: { energyKJ: 931, energyCal: 222, protein: 12.4, fat: 13.4, saturatedFat: 1.6, carbs: 12.7, sugars: 0.4, sodium: 394 }
+                }
+            },
+            {
+                id: "mcnuggets-10pc",
+                name: "Chicken McNuggets 10pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "162g", energyKJ: 1510, energyCal: 360, protein: 20.1, fat: 21.7, saturatedFat: 2.6, carbs: 20.6, sugars: 0.7, sodium: 638 },
+                    per100g: { energyKJ: 931, energyCal: 222, protein: 12.4, fat: 13.4, saturatedFat: 1.6, carbs: 12.7, sugars: 0.4, sodium: 394 }
+                }
+            },
+            {
+                id: "mcnuggets-20pc",
+                name: "Chicken McNuggets 20pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "324g", energyKJ: 3020, energyCal: 721, protein: 40.2, fat: 43.4, saturatedFat: 5.2, carbs: 41.2, sugars: 1.3, sodium: 1280 },
+                    per100g: { energyKJ: 931, energyCal: 222, protein: 12.4, fat: 13.4, saturatedFat: 1.6, carbs: 12.7, sugars: 0.4, sodium: 394 }
+                }
+            },
+            {
+                id: "mcnuggets-40pc",
+                name: "Chicken McNuggets 40pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "648g", energyKJ: 6030, energyCal: 1440, protein: 80.4, fat: 86.8, saturatedFat: 10.5, carbs: 82.5, sugars: 2.7, sodium: 2550 },
+                    per100g: { energyKJ: 931, energyCal: 222, protein: 12.4, fat: 13.4, saturatedFat: 1.6, carbs: 12.7, sugars: 0.4, sodium: 394 }
+                }
+            },
+            {
+                id: "mcchicken",
+                name: "McChicken",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "196g", energyKJ: 1820, energyCal: 435, protein: 16.7, fat: 20.0, saturatedFat: 2.5, carbs: 45.2, sugars: 6.9, sodium: 676 },
+                    per100g: { energyKJ: 929, energyCal: 222, protein: 8.5, fat: 10.2, saturatedFat: 1.3, carbs: 23.1, sugars: 3.5, sodium: 345 }
+                }
+            },
+            {
+                id: "double-mcchicken",
+                name: "Double McChicken",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "301g", energyKJ: 2890, energyCal: 690, protein: 28.3, fat: 37.0, saturatedFat: 4.5, carbs: 59.3, sugars: 7.8, sodium: 1071 },
+                    per100g: { energyKJ: 960, energyCal: 229, protein: 9.4, fat: 12.3, saturatedFat: 1.5, carbs: 19.7, sugars: 2.6, sodium: 356 }
+                }
+            },
+            {
+                id: "mccrispy",
+                name: "McCrispy",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "229g", energyKJ: 2480, energyCal: 634, protein: 26.2, fat: 27.6, saturatedFat: 2.8, carbs: 59.2, sugars: 5.5, sodium: 1223 },
+                    per100g: { energyKJ: 1080, energyCal: 277, protein: 11.4, fat: 12.1, saturatedFat: 1.2, carbs: 25.9, sugars: 2.4, sodium: 534 }
+                }
+            },
+            {
+                id: "mccrispy-deluxe",
+                name: "McCrispy Deluxe",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "294g", energyKJ: 2720, energyCal: 690, protein: 29.5, fat: 31.9, saturatedFat: 5.7, carbs: 60.3, sugars: 6.1, sodium: 1458 },
+                    per100g: { energyKJ: 926, energyCal: 235, protein: 10.1, fat: 10.9, saturatedFat: 1.9, carbs: 20.6, sugars: 2.1, sodium: 497 }
+                }
+            },
+            {
+                id: "mcspicy",
+                name: "McSpicy",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "245g", energyKJ: 2440, energyCal: 584, protein: 30.0, fat: 29.2, saturatedFat: 3.9, carbs: 48.5, sugars: 6.9, sodium: 1203 },
+                    per100g: { energyKJ: 996, energyCal: 238, protein: 12.3, fat: 11.9, saturatedFat: 1.6, carbs: 19.8, sugars: 2.8, sodium: 491 }
+                }
+            },
+            {
+                id: "chicken-n-cheese",
+                name: "Chicken 'n' Cheese",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "140g", energyKJ: 1750, energyCal: 419, protein: 17.0, fat: 21.1, saturatedFat: 3.7, carbs: 39.0, sugars: 5.4, sodium: 706 },
+                    per100g: { energyKJ: 1090, energyCal: 298, protein: 12.1, fat: 15.0, saturatedFat: 2.6, carbs: 27.8, sugars: 3.8, sodium: 503 }
+                }
+            },
+            {
+                id: "filet-o-fish",
+                name: "Filet-O-Fish",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "141g", energyKJ: 1420, energyCal: 339, protein: 14.6, fat: 14.6, saturatedFat: 2.5, carbs: 34.6, sugars: 5.2, sodium: 626 },
+                    per100g: { energyKJ: 1010, energyCal: 241, protein: 10.4, fat: 10.4, saturatedFat: 1.8, carbs: 24.7, sugars: 3.7, sodium: 446 }
+                }
+            },
+            {
+                id: "double-filet-o-fish",
+                name: "Double Filet-O-Fish",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "231g", energyKJ: 2250, energyCal: 537, protein: 25.4, fat: 26.8, saturatedFat: 4.6, carbs: 44.7, sugars: 6.3, sodium: 1021 },
+                    per100g: { energyKJ: 974, energyCal: 233, protein: 11.0, fat: 11.6, saturatedFat: 2.0, carbs: 19.4, sugars: 2.7, sodium: 442 }
+                }
+            },
+            {
+                id: "mcwings-3pc",
+                name: "McWings 3pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "210g", energyKJ: 2010, energyCal: 480, protein: 27.5, fat: 30.2, saturatedFat: 5.0, carbs: 20.6, sugars: 0.2, sodium: 1300 },
+                    per100g: { energyKJ: 956, energyCal: 228, protein: 13.1, fat: 14.4, saturatedFat: 2.4, carbs: 9.8, sugars: 0.1, sodium: 620 }
+                }
+            },
+            {
+                id: "mcwings-5pc",
+                name: "McWings 5pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "350g", energyKJ: 3340, energyCal: 799, protein: 45.9, fat: 50.4, saturatedFat: 8.4, carbs: 34.4, sugars: 0.4, sodium: 2170 },
+                    per100g: { energyKJ: 956, energyCal: 228, protein: 13.1, fat: 14.4, saturatedFat: 2.4, carbs: 9.8, sugars: 0.1, sodium: 620 }
+                }
+            },
+            {
+                id: "mcwings-10pc",
+                name: "McWings 10pc",
+                category: "chicken",
+                nutrition: {
+                    perServe: { servingSize: "700g", energyKJ: 6690, energyCal: 1600, protein: 91.7, fat: 100.8, saturatedFat: 16.8, carbs: 68.6, sugars: 0.7, sodium: 4340 },
+                    per100g: { energyKJ: 956, energyCal: 228, protein: 13.1, fat: 14.4, saturatedFat: 2.4, carbs: 9.8, sugars: 0.1, sodium: 620 }
+                }
+            },
+            // WRAPS
+            {
+                id: "classic-chicken-mcwrap",
+                name: "Classic Chicken McWrap",
+                category: "wraps",
+                nutrition: {
+                    perServe: { servingSize: "289g", energyKJ: 2214, energyCal: 530, protein: 21.5, fat: 25.0, saturatedFat: 4.2, carbs: 52.9, sugars: 3.2, sodium: 986 },
+                    per100g: { energyKJ: 766, energyCal: 183, protein: 7.4, fat: 8.7, saturatedFat: 1.4, carbs: 18.3, sugars: 1.1, sodium: 341 }
+                }
+            },
+            {
+                id: "spicy-chicken-mcwrap",
+                name: "Spicy Chicken McWrap",
+                category: "wraps",
+                nutrition: {
+                    perServe: { servingSize: "298g", energyKJ: 2470, energyCal: 593, protein: 30.6, fat: 32.6, saturatedFat: 5.6, carbs: 42.9, sugars: 3.2, sodium: 1224 },
+                    per100g: { energyKJ: 828, energyCal: 199, protein: 10.3, fat: 10.9, saturatedFat: 1.9, carbs: 14.4, sugars: 1.1, sodium: 410 }
+                }
+            },
+            {
+                id: "chicken-snack-wrap",
+                name: "Chicken Snack Wrap",
+                category: "wraps",
+                nutrition: {
+                    perServe: { servingSize: "123g", energyKJ: 1180, energyCal: 309, protein: 14.0, fat: 9.6, saturatedFat: 2.4, carbs: 32.5, sugars: 6.6, sodium: 609 },
+                    per100g: { energyKJ: 961, energyCal: 251, protein: 11.4, fat: 7.8, saturatedFat: 1.9, carbs: 26.4, sugars: 5.3, sodium: 494 }
+                }
+            },
+            // FRIES
+            {
+                id: "fries-small",
+                name: "Fries Small",
+                category: "fries",
+                nutrition: {
+                    perServe: { servingSize: "72g", energyKJ: 916, energyCal: 219, protein: 3.5, fat: 11.5, saturatedFat: 0.9, carbs: 24.3, sugars: 0.0, sodium: 210 },
+                    per100g: { energyKJ: 1270, energyCal: 304, protein: 4.8, fat: 16.0, saturatedFat: 1.3, carbs: 33.8, sugars: 0.0, sodium: 292 }
+                }
+            },
+            {
+                id: "fries-medium",
+                name: "Fries Medium",
+                category: "fries",
+                nutrition: {
+                    perServe: { servingSize: "104g", energyKJ: 1320, energyCal: 316, protein: 5.0, fat: 16.6, saturatedFat: 1.4, carbs: 35.2, sugars: 0.0, sodium: 304 },
+                    per100g: { energyKJ: 1270, energyCal: 304, protein: 4.8, fat: 16.0, saturatedFat: 1.3, carbs: 33.8, sugars: 0.0, sodium: 292 }
+                }
+            },
+            {
+                id: "fries-large",
+                name: "Fries Large",
+                category: "fries",
+                nutrition: {
+                    perServe: { servingSize: "128g", energyKJ: 1630, energyCal: 389, protein: 6.1, fat: 20.5, saturatedFat: 1.7, carbs: 43.3, sugars: 0.0, sodium: 374 },
+                    per100g: { energyKJ: 1270, energyCal: 304, protein: 4.8, fat: 16.0, saturatedFat: 1.3, carbs: 33.8, sugars: 0.0, sodium: 292 }
+                }
+            },
+            // BREAKFAST
+            {
+                id: "bacon-egg-mcmuffin",
+                name: "Bacon & Egg McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "134g", energyKJ: 1210, energyCal: 290, protein: 17.3, fat: 13.0, saturatedFat: 5.2, carbs: 25.2, sugars: 2.7, sodium: 605 },
+                    per100g: { energyKJ: 906, energyCal: 216, protein: 12.9, fat: 9.7, saturatedFat: 3.9, carbs: 18.8, sugars: 2.0, sodium: 452 }
+                }
+            },
+            {
+                id: "double-bacon-egg-mcmuffin",
+                name: "Double Bacon & Egg McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "148g", energyKJ: 1330, energyCal: 318, protein: 20.7, fat: 14.4, saturatedFat: 5.8, carbs: 25.4, sugars: 3.0, sodium: 794 },
+                    per100g: { energyKJ: 899, energyCal: 215, protein: 14.0, fat: 9.7, saturatedFat: 3.9, carbs: 17.2, sugars: 2.0, sodium: 537 }
+                }
+            },
+            {
+                id: "sausage-mcmuffin",
+                name: "Sausage McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "111g", energyKJ: 1260, energyCal: 300, protein: 16.0, fat: 14.6, saturatedFat: 7.4, carbs: 25.3, sugars: 2.6, sodium: 571 },
+                    per100g: { energyKJ: 1130, energyCal: 271, protein: 14.5, fat: 13.2, saturatedFat: 6.7, carbs: 22.8, sugars: 2.3, sodium: 516 }
+                }
+            },
+            {
+                id: "double-sausage-mcmuffin",
+                name: "Double Sausage McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "150g", energyKJ: 1720, energyCal: 412, protein: 24.2, fat: 23.2, saturatedFat: 11.8, carbs: 25.8, sugars: 2.8, sodium: 769 },
+                    per100g: { energyKJ: 1150, energyCal: 274, protein: 16.1, fat: 15.4, saturatedFat: 7.9, carbs: 17.2, sugars: 1.9, sodium: 511 }
+                }
+            },
+            {
+                id: "sausage-egg-mcmuffin",
+                name: "Sausage & Egg McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "159g", energyKJ: 1560, energyCal: 374, protein: 22.1, fat: 20.1, saturatedFat: 9.1, carbs: 25.4, sugars: 2.7, sodium: 614 },
+                    per100g: { energyKJ: 979, energyCal: 234, protein: 13.8, fat: 12.6, saturatedFat: 5.7, carbs: 15.9, sugars: 1.7, sodium: 384 }
+                }
+            },
+            {
+                id: "double-sausage-egg-mcmuffin",
+                name: "Double Sausage & Egg McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "199g", energyKJ: 2030, energyCal: 485, protein: 30.2, fat: 28.7, saturatedFat: 13.5, carbs: 26.0, sugars: 3.0, sodium: 812 },
+                    per100g: { energyKJ: 1020, energyCal: 243, protein: 15.2, fat: 14.4, saturatedFat: 6.8, carbs: 13.0, sugars: 1.5, sodium: 407 }
+                }
+            },
+            {
+                id: "chicken-mcmuffin",
+                name: "Chicken McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "166g", energyKJ: 1710, energyCal: 410, protein: 19.5, fat: 19.5, saturatedFat: 4.7, carbs: 37.9, sugars: 2.2, sodium: 710 },
+                    per100g: { energyKJ: 1030, energyCal: 246, protein: 11.7, fat: 11.7, saturatedFat: 2.9, carbs: 22.8, sugars: 1.7, sodium: 427 }
+                }
+            },
+            {
+                id: "chicken-bacon-mcmuffin",
+                name: "Chicken and Bacon McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "180g", energyKJ: 1930, energyCal: 461, protein: 23.6, fat: 21.9, saturatedFat: 5.4, carbs: 41.1, sugars: 3.2, sodium: 937 },
+                    per100g: { energyKJ: 1070, energyCal: 256, protein: 13.1, fat: 12.2, saturatedFat: 3.0, carbs: 22.8, sugars: 1.8, sodium: 520 }
+                }
+            },
+            {
+                id: "big-brekkie-burger",
+                name: "Big Brekkie Burger",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "205g", energyKJ: 1880, energyCal: 449, protein: 29.1, fat: 23.0, saturatedFat: 10.2, carbs: 30.4, sugars: 6.6, sodium: 1160 },
+                    per100g: { energyKJ: 917, energyCal: 219, protein: 14.2, fat: 11.2, saturatedFat: 5.0, carbs: 14.8, sugars: 3.2, sodium: 566 }
+                }
+            },
+            {
+                id: "mighty-mcmuffin",
+                name: "Mighty McMuffin",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "311g", energyKJ: 3070, energyCal: 735, protein: 38.9, fat: 39.1, saturatedFat: 14.2, carbs: 52.3, sugars: 11.5, sodium: 1648 },
+                    per100g: { energyKJ: 987, energyCal: 236, protein: 12.5, fat: 12.6, saturatedFat: 4.6, carbs: 16.8, sugars: 3.7, sodium: 530 }
+                }
+            },
+            {
+                id: "brekkie-wrap",
+                name: "Brekkie Wrap",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "192g", energyKJ: 1880, energyCal: 449, protein: 17.9, fat: 25.1, saturatedFat: 7.6, carbs: 36.5, sugars: 5.7, sodium: 1000 },
+                    per100g: { energyKJ: 977, energyCal: 234, protein: 9.3, fat: 13.1, saturatedFat: 4.0, carbs: 19.0, sugars: 3.0, sodium: 521 }
+                }
+            },
+            {
+                id: "mega-brekkie-wrap",
+                name: "Mega Brekkie Wrap",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "344g", energyKJ: 3680, energyCal: 861, protein: 45.8, fat: 53.7, saturatedFat: 22.7, carbs: 53.8, sugars: 7.7, sodium: 1941 },
+                    per100g: { energyKJ: 1070, energyCal: 251, protein: 13.4, fat: 15.7, saturatedFat: 6.6, carbs: 15.7, sugars: 2.2, sodium: 566 }
+                }
+            },
+            {
+                id: "ham-cheese-pocket",
+                name: "Ham & Cheese Pocket",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "154g", energyKJ: 1750, energyCal: 418, protein: 15.3, fat: 20.2, saturatedFat: 10.7, carbs: 44.0, sugars: 15.9, sodium: 1130 },
+                    per100g: { energyKJ: 1130, energyCal: 270, protein: 9.9, fat: 13.1, saturatedFat: 6.9, carbs: 28.6, sugars: 10.3, sodium: 733 }
+                }
+            },
+            {
+                id: "hotcakes",
+                name: "Hotcakes with Butter and Syrup",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "223g", energyKJ: 2490, energyCal: 596, protein: 9.4, fat: 18.6, saturatedFat: 8.4, carbs: 95.7, sugars: 44.2, sodium: 575 },
+                    per100g: { energyKJ: 1120, energyCal: 267, protein: 4.2, fat: 8.3, saturatedFat: 3.8, carbs: 42.9, sugars: 19.8, sodium: 258 }
+                }
+            },
+            {
+                id: "hash-brown",
+                name: "Hash Brown",
+                category: "breakfast",
+                nutrition: {
+                    perServe: { servingSize: "55g", energyKJ: 600, energyCal: 143, protein: 1.4, fat: 9.6, saturatedFat: 0.8, carbs: 12.4, sugars: 0.1, sodium: 293 },
+                    per100g: { energyKJ: 1080, energyCal: 259, protein: 2.5, fat: 17.3, saturatedFat: 1.4, carbs: 22.4, sugars: 0.3, sodium: 529 }
+                }
+            },
+            // CONDIMENTS
+            {
+                id: "bbq-sauce",
+                name: "BBQ Sauce",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "28g", energyKJ: 182, energyCal: 44, protein: 0.3, fat: 0.1, saturatedFat: 0.0, carbs: 10.2, sugars: 9.1, sodium: 169 },
+                    per100g: { energyKJ: 650, energyCal: 155, protein: 1.0, fat: 0.3, saturatedFat: 0.0, carbs: 36.5, sugars: 32.4, sodium: 602 }
+                }
+            },
+            {
+                id: "sweet-sour-sauce",
+                name: "Sweet & Sour Sauce",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "28g", energyKJ: 204, energyCal: 49, protein: 0.1, fat: 0.1, saturatedFat: 0.0, carbs: 11.6, sugars: 10.4, sodium: 126 },
+                    per100g: { energyKJ: 727, energyCal: 174, protein: 0.5, fat: 0.2, saturatedFat: 0.0, carbs: 41.6, sugars: 37.3, sodium: 451 }
+                }
+            },
+            {
+                id: "sweet-mustard-sauce",
+                name: "Sweet Mustard Sauce",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "28g", energyKJ: 327, energyCal: 78, protein: 0.3, fat: 2.9, saturatedFat: 0.2, carbs: 12.7, sugars: 5.6, sodium: 109 },
+                    per100g: { energyKJ: 1170, energyCal: 279, protein: 1.0, fat: 10.3, saturatedFat: 0.7, carbs: 45.2, sugars: 20.0, sodium: 390 }
+                }
+            },
+            {
+                id: "spicy-buffalo-sauce",
+                name: "Spicy Buffalo Sauce",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "25g", energyKJ: 117, energyCal: 28, protein: 0.3, fat: 0.8, saturatedFat: 0.2, carbs: 4.8, sugars: 3.6, sodium: 260 },
+                    per100g: { energyKJ: 468, energyCal: 112, protein: 1.2, fat: 3.2, saturatedFat: 0.9, carbs: 19.0, sugars: 14.5, sodium: 1040 }
+                }
+            },
+            {
+                id: "ranch-sauce",
+                name: "Ranch Sauce",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "28g", energyKJ: 408, energyCal: 97, protein: 0.5, fat: 9.1, saturatedFat: 0.7, carbs: 3.9, sugars: 1.0, sodium: 162 },
+                    per100g: { energyKJ: 1630, energyCal: 390, protein: 1.9, fat: 36.3, saturatedFat: 2.8, carbs: 15.7, sugars: 3.9, sodium: 649 }
+                }
+            },
+            {
+                id: "ketchup",
+                name: "Ketchup",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "9g", energyKJ: 43, energyCal: 10, protein: 0.1, fat: 0.0, saturatedFat: 0.0, carbs: 2.3, sugars: 2.1, sodium: 92 },
+                    per100g: { energyKJ: 477, energyCal: 144, protein: 1.5, fat: 0.0, saturatedFat: 0.0, carbs: 26.1, sugars: 23.0, sodium: 1020 }
+                }
+            },
+            {
+                id: "aioli",
+                name: "Aioli",
+                category: "condiments",
+                nutrition: {
+                    perServe: { servingSize: "28g", energyKJ: 775, energyCal: 185, protein: 0.5, fat: 20.0, saturatedFat: 1.6, carbs: 1.5, sugars: 1.0, sodium: 112 },
+                    per100g: { energyKJ: 2770, energyCal: 661, protein: 1.9, fat: 71.5, saturatedFat: 5.8, carbs: 5.2, sugars: 3.4, sodium: 400 }
+                }
+            },
+            // FRUIT
+            {
+                id: "apple-slices",
+                name: "Apple Slices",
+                category: "fruit",
+                nutrition: {
+                    perServe: { servingSize: "80g", energyKJ: 174, energyCal: 41, protein: 0.3, fat: 0.2, saturatedFat: 0.1, carbs: 8.5, sugars: 7.9, sodium: 2 },
+                    per100g: { energyKJ: 218, energyCal: 52, protein: 0.4, fat: 0.3, saturatedFat: 0.1, carbs: 10.6, sugars: 9.9, sodium: 2 }
+                }
+            }
+        ];
+
+        // State
+        let currentCategory = 'all';
+        let currentView = 'serving';
+        let searchTerm = '';
+
+        // Elements
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilters = document.getElementById('categoryFilters');
+        const productGrid = document.getElementById('productGrid');
+        const noResults = document.getElementById('noResults');
+
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => {
+            searchTerm = e.target.value.toLowerCase();
+            renderProducts();
+        });
+
+        categoryFilters.addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentCategory = e.target.dataset.category;
+                renderProducts();
+            }
+        });
+
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentView = e.target.dataset.view;
+                renderProducts();
+            });
+        });
+
+        // Filter products
+        function filterProducts() {
+            return products.filter(product => {
+                const matchesCategory = currentCategory === 'all' || product.category === currentCategory;
+                const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+        }
+
+        // Render product card
+        function renderProductCard(product) {
+            const nutritionData = currentView === 'serving' ? product.nutrition.perServe : product.nutrition.per100g;
+            const servingText = currentView === 'serving'
+                ? `Serving: ${product.nutrition.perServe.servingSize}`
+                : 'Per 100g';
+
+            return `
+                <div class="product-card">
+                    <div class="product-image" style="background: url('https://via.placeholder.com/160?text=${encodeURIComponent(product.name)}') center/contain no-repeat;"></div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="serving-size">${servingText}</div>
+                    <div class="calories">${nutritionData.energyCal}<span> cal</span></div>
+                    <div class="macros-grid">
+                        <div class="macro">
+                            <div class="macro-value">${nutritionData.protein.toFixed(1)}g</div>
+                            <div class="macro-label">Protein</div>
+                        </div>
+                        <div class="macro">
+                            <div class="macro-value">${nutritionData.carbs.toFixed(1)}g</div>
+                            <div class="macro-label">Carbs</div>
+                        </div>
+                        <div class="macro">
+                            <div class="macro-value">${nutritionData.fat.toFixed(1)}g</div>
+                            <div class="macro-label">Fat</div>
+                        </div>
+                    </div>
+                    <div class="secondary-nutrients">
+                        <div class="nutrient-item">
+                            <span class="nutrient-value">${nutritionData.saturatedFat.toFixed(1)}g</span>
+                            <span>Sat Fat</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-value">${nutritionData.sugars.toFixed(1)}g</span>
+                            <span>Sugar</span>
+                        </div>
+                        <div class="nutrient-item">
+                            <span class="nutrient-value">${nutritionData.sodium}mg</span>
+                            <span>Sodium</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render products
+        function renderProducts() {
+            const filtered = filterProducts();
+
+            if (filtered.length === 0) {
+                productGrid.style.display = 'none';
+                noResults.style.display = 'block';
+            } else {
+                productGrid.style.display = 'grid';
+                noResults.style.display = 'none';
+                productGrid.innerHTML = filtered.map(product => renderProductCard(product)).join('');
+            }
+        }
+
+        // Load view preference from localStorage
+        const savedView = localStorage.getItem('nutritionView');
+        if (savedView) {
+            currentView = savedView;
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === savedView);
+            });
+        }
+
+        // Save view preference
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                localStorage.setItem('nutritionView', currentView);
+            });
+        });
+
+        // Initial render
+        renderProducts();
+    </script>
+</body>
+</html>
