@@ -1,28 +1,17 @@
 # McDonald's Macro Checker
 
-A web application built with Bun for checking nutritional macros at McDonald's.
+A self-contained web application for checking nutritional macros at McDonald's.
 
 ## Tech Stack
 
-- **Runtime**: Bun
+- Vanilla HTML/CSS/JavaScript
+- No build step required
+- Dependencies loaded from CDN
 - **Deployment**: Vercel
 
 ## Development
 
-Install dependencies:
-```bash
-bun install
-```
-
-Run development server:
-```bash
-bun run dev
-```
-
-Build for production:
-```bash
-bun run build
-```
+Simply open `index.html` in your browser. No build step or dependencies needed.
 
 ## Deployment
 
@@ -31,9 +20,4 @@ Deploy to Vercel:
 vercel --prod --yes
 ```
 
-## Type Checking
-
-Run type check without building:
-```bash
-bunx tsc --noEmit
-```
+The single HTML file will be served as a static site.
