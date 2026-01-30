@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>McDonald's Macro Checker</title>
+    <title>McDonald's Australia Nutrition Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Speedee:wght@400;700&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,194 +13,1130 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F8F8F8;
+            color: #292929;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #DA291C;
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 40px 20px;
         }
 
-        h1 {
-            color: white;
-            text-align: center;
+        /* Nutrition Summary Section */
+        .nutrition-summary {
+            background-color: white;
+            border-radius: 12px;
+            padding: 40px;
             margin-bottom: 30px;
-            font-size: 2.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .card {
-            background: white;
+        .summary-main {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #292929;
+            margin-bottom: 5px;
+        }
+
+        .summary-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .summary-sublabel {
+            font-size: 13px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .summary-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 40px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .detail-label {
+            font-size: 15px;
+            color: #292929;
+        }
+
+        .detail-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #292929;
+        }
+
+        .dv-percent {
+            font-size: 13px;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .dv-note {
+            grid-column: 1 / -1;
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Item List Section */
+        .items-section {
+            background-color: white;
             border-radius: 12px;
             padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .search-box {
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
         }
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px;
+        .items-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #292929;
+        }
+
+        .btn-add {
+            background-color: #FFBC0D;
+            color: #292929;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
             font-size: 16px;
-            border: 2px solid #e0e0e0;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background-color: #FFA500;
+            transform: translateY(-2px);
+        }
+
+        .item-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #eee;
             border-radius: 8px;
             transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .item-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
         .item-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #FFBC0D;
+        }
+
+        .item-checkbox {
+            margin-right: 20px;
+        }
+
+        .item-checkbox input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .item-info {
+            flex-grow: 1;
         }
 
         .item-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #333;
+            font-size: 20px;
+            font-weight: 700;
+            color: #292929;
+            margin-bottom: 8px;
         }
 
-        .macros {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        .item-ingredients {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .item-calories {
+            font-size: 16px;
+            font-weight: 600;
+            color: #292929;
+        }
+
+        .item-actions {
+            display: flex;
             gap: 10px;
-            margin-top: 10px;
+            margin-left: 20px;
         }
 
-        .macro {
-            text-align: center;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 6px;
+        .btn-edit, .btn-delete {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .macro-label {
-            font-size: 0.8rem;
-            color: #666;
-            text-transform: uppercase;
+        .btn-edit {
+            background-color: white;
+            border: 2px solid #292929;
+            color: #292929;
         }
 
-        .macro-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #333;
-            margin-top: 5px;
+        .btn-edit:hover {
+            background-color: #F8F8F8;
         }
 
-        .calories {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #667eea;
+        .btn-delete {
+            background-color: white;
+            border: 2px solid #DA291C;
+            color: #DA291C;
+        }
+
+        .btn-delete:hover {
+            background-color: #FFF5F5;
+        }
+
+        .items-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .btn-delete-all {
+            color: #DA291C;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: underline;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-delete-all:hover {
+            color: #B71C1C;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 1000px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            margin: 20px;
+        }
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 2px solid #eee;
+            position: sticky;
+            top: 0;
+            background-color: white;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #292929;
             margin-bottom: 10px;
         }
 
-        .no-results {
+        .modal-search {
+            margin-top: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #FFBC0D;
+            border-radius: 25px;
+            font-size: 16px;
+            font-family: 'Barlow', sans-serif;
+            outline: none;
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .category-btn {
+            padding: 10px 20px;
+            border: 2px solid #FFBC0D;
+            background-color: white;
+            color: #292929;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            background-color: #FFF8E1;
+        }
+
+        .category-btn.active {
+            background-color: #FFBC0D;
+        }
+
+        .star-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .star-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .star-btn.starred {
+            color: #FFBC0D;
+        }
+
+        .star-btn:not(.starred) {
+            color: #ddd;
+        }
+
+        .product-card {
+            position: relative;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
             text-align: center;
-            padding: 40px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .product-card:hover {
+            border-color: #FFBC0D;
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+        }
+
+        .product-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #292929;
+            margin-bottom: 8px;
+            min-height: 40px;
+        }
+
+        .product-card .calories {
+            font-size: 14px;
             color: #666;
-            font-size: 1.1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #292929;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #666;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-close:hover {
+            color: #292929;
+        }
+
+        @media (max-width: 768px) {
+            .summary-main {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .summary-details {
+                grid-template-columns: 1fr;
+            }
+
+            .item-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .item-checkbox {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .item-image {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .item-actions {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🍔 McDonald's Macro Checker</h1>
+    <div class="header">
+        <h1>Nutrition Calculator</h1>
+        <p>Find McDonald's calories, carb and nutrition information on your favorite products using the nutrition calculator.</p>
+    </div>
 
-        <div class="card">
-            <div class="search-box">
-                <input
-                    type="text"
-                    id="searchInput"
-                    placeholder="Search for menu items..."
-                    autocomplete="off"
-                >
+    <div class="container">
+        <!-- Nutrition Summary -->
+        <div class="nutrition-summary">
+            <div class="summary-main">
+                <div class="summary-item">
+                    <div class="summary-value" id="totalCalories">0</div>
+                    <div class="summary-label">Cal.</div>
+                    <div class="summary-sublabel">Calories</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="totalProtein">0g</div>
+                    <div class="summary-label">Protein</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="totalCarbs">0g</div>
+                    <div class="summary-label">Total Carbs</div>
+                    <div class="summary-sublabel" id="carbsDV">(0% DV)</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="totalFat">0g</div>
+                    <div class="summary-label">Total Fat</div>
+                    <div class="summary-sublabel" id="fatDV">(0% DV)</div>
+                </div>
             </div>
 
-            <div id="results" class="items-grid"></div>
+            <div class="summary-details">
+                <div class="detail-row">
+                    <span class="detail-label">Saturated Fat:</span>
+                    <span class="detail-value" id="saturatedFat">0g <span class="dv-percent" id="satFatDV">(0% DV)</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Sugars:</span>
+                    <span class="detail-value" id="totalSugars">0g</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Sodium:</span>
+                    <span class="detail-value" id="totalSodium">0mg <span class="dv-percent" id="sodiumDV">(0% DV)</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Energy (kJ):</span>
+                    <span class="detail-value" id="totalEnergyKJ">0kJ</span>
+                </div>
+                <div class="dv-note">
+                    *Percent Daily Values (DV) are based on a 2,000 calorie diet
+                </div>
+            </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="items-section">
+            <div class="items-header">
+                <h2 class="items-count">Showing Nutrition for: <span id="itemCount">0</span> Item(s)</h2>
+                <button class="btn-add" onclick="openModal()">Add more items</button>
+            </div>
+
+            <div id="itemsList">
+                <div class="empty-state">
+                    <h2>Start Building Your Meal</h2>
+                    <p>Click "Add more items" to add products to your nutrition calculator</p>
+                    <button class="btn-add" onclick="openModal()">Add more items</button>
+                </div>
+            </div>
+
+            <div class="items-footer" id="itemsFooter" style="display: none;">
+                <button class="btn-add" onclick="openModal()">Add more items</button>
+                <button class="btn-delete-all" onclick="deleteAllItems()">Delete all items</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        // Sample McDonald's menu data with macros
-        const menuItems = [
-            { name: "Big Mac", calories: 550, protein: 25, carbs: 45, fat: 30 },
-            { name: "Quarter Pounder with Cheese", calories: 520, protein: 30, carbs: 42, fat: 26 },
-            { name: "McChicken", calories: 400, protein: 14, carbs: 39, fat: 21 },
-            { name: "Filet-O-Fish", calories: 380, protein: 16, carbs: 39, fat: 18 },
-            { name: "10 Piece Chicken McNuggets", calories: 420, protein: 24, carbs: 25, fat: 24 },
-            { name: "Medium Fries", calories: 340, protein: 4, carbs: 44, fat: 16 },
-            { name: "McFlurry with Oreo", calories: 510, protein: 11, carbs: 80, fat: 16 },
-            { name: "Egg McMuffin", calories: 300, protein: 17, carbs: 30, fat: 13 },
-            { name: "Sausage McMuffin with Egg", calories: 480, protein: 21, carbs: 31, fat: 30 },
-            { name: "Hash Brown", calories: 150, protein: 2, carbs: 15, fat: 9 },
-        ];
-
-        const searchInput = document.getElementById('searchInput');
-        const resultsDiv = document.getElementById('results');
-
-        function renderItems(items) {
-            if (items.length === 0) {
-                resultsDiv.innerHTML = '<div class="no-results">No items found. Try a different search.</div>';
-                return;
-            }
-
-            resultsDiv.innerHTML = items.map(item => `
-                <div class="item-card">
-                    <div class="item-name">${item.name}</div>
-                    <div class="calories">${item.calories} cal</div>
-                    <div class="macros">
-                        <div class="macro">
-                            <div class="macro-label">Protein</div>
-                            <div class="macro-value">${item.protein}g</div>
-                        </div>
-                        <div class="macro">
-                            <div class="macro-label">Carbs</div>
-                            <div class="macro-value">${item.carbs}g</div>
-                        </div>
-                        <div class="macro">
-                            <div class="macro-label">Fat</div>
-                            <div class="macro-value">${item.fat}g</div>
-                        </div>
+    <!-- Add Items Modal -->
+    <div class="modal" id="addItemsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button class="btn-close" onclick="closeModal()">&times;</button>
+                <h2>Add Items</h2>
+                <div class="modal-search">
+                    <input type="text" class="search-input" id="modalSearch" placeholder="Search for menu items...">
+                    <div class="category-filters" id="modalCategories">
+                        <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="starred">⭐ Starred</button>
+                        <button class="category-btn" data-category="beef">Beef</button>
+                        <button class="category-btn" data-category="chicken">Chicken & Fish</button>
+                        <button class="category-btn" data-category="wraps">Wraps</button>
+                        <button class="category-btn" data-category="fries">Fries</button>
+                        <button class="category-btn" data-category="breakfast">Breakfast</button>
+                        <button class="category-btn" data-category="condiments">Condiments</button>
+                        <button class="category-btn" data-category="fruit">Fruit</button>
                     </div>
                 </div>
-            `).join('');
+            </div>
+            <div class="modal-body">
+                <div class="product-grid" id="modalProductGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="application/json" id="imageManifest">
+    {
+      "1-low-fat-milk-jug": "1-low-fat-milk-jug.jpg",
+      "10-piece-chicken-mcnuggets": "10-piece-chicken-mcnuggets.jpg",
+      "10-piece-chicken-mcnuggets-meal": "10-piece-chicken-mcnuggets-meal.jpg",
+      "20-piece-chicken-mcnuggets": "20-piece-chicken-mcnuggets.jpg",
+      "4-piece-chicken-mcnuggets": "4-piece-chicken-mcnuggets.jpg",
+      "40-piece-chicken-mcnuggets": "40-piece-chicken-mcnuggets.jpg",
+      "6-piece-chicken-mcnuggets": "6-piece-chicken-mcnuggets.jpg",
+      "americano": "americano.jpg",
+      "apple-slices": "apple-slices.jpg",
+      "bacon-quarter-pounder-with-cheese": "bacon-quarter-pounder-with-cheese.jpg",
+      "bacon-quarter-pounder-with-cheese-meal": "bacon-quarter-pounder-with-cheese-meal.jpg",
+      "bacon-egg-and-cheese-biscuit": "bacon-egg-and-cheese-biscuit.jpg",
+      "bacon-egg-and-cheese-bagel": "bacon-egg-and-cheese-bagel.jpg",
+      "bacon-egg-and-cheese-bagel-meal": "bacon-egg-and-cheese-bagel-meal.jpg",
+      "bacon-egg-and-cheese-biscuit-meal": "bacon-egg-and-cheese-biscuit-meal.jpg",
+      "bacon-egg-and-cheese-mcgriddles": "bacon-egg-and-cheese-mcgriddles.jpg",
+      "bacon-egg-and-cheese-mcgriddles-meal": "bacon-egg-and-cheese-mcgriddles-meal.jpg",
+      "bagel-plain": "bagel-plain.jpg",
+      "baked-apple-pie": "baked-apple-pie.jpg",
+      "big-breakfast": "big-breakfast.jpg",
+      "big-breakfast-with-hotcakes": "big-breakfast-with-hotcakes.jpg",
+      "big-mac": "big-mac.jpg",
+      "big-mac-meal": "big-mac-meal.jpg",
+      "cheeseburger": "cheeseburger.jpg",
+      "cheeseburger-meal": "cheeseburger-meal.jpg",
+      "chocolate-chip-cookie": "chocolate-chip-cookie.jpg",
+      "chocolate-shake": "chocolate-shake.jpg",
+      "coca-cola": "coca-cola.jpg",
+      "creamy-chili-mccrispy-strip-dip": "creamy-chili-mccrispy-strip-dip.jpg",
+      "creamy-ranch-sauce": "creamy-ranch-sauce.jpg",
+      "daily-double": "daily-double.jpg",
+      "dasani-water": "dasani-water.jpg",
+      "deluxe-mccrispy": "deluxe-mccrispy.jpg",
+      "deluxe-mccrispy-meal": "deluxe-mccrispy-meal.jpg",
+      "diet-coke": "diet-coke.jpg",
+      "double-cheeseburger": "double-cheeseburger.jpg",
+      "double-quarter-pounder-with-cheese": "double-quarter-pounder-with-cheese.jpg",
+      "double-quarter-pounder-with-cheese-meal": "double-quarter-pounder-with-cheese-meal.jpg",
+      "dr-pepper": "dr-pepper.jpg",
+      "egg-and-cheese-bagel": "egg-and-cheese-bagel.jpg",
+      "egg-mcmuffin": "egg-mcmuffin.jpg",
+      "egg-mcmuffin-meal": "egg-mcmuffin-meal.jpg",
+      "fanta-orange": "fanta-orange.jpg",
+      "filet-o-fish": "filet-o-fish.jpg",
+      "filet-o-fish-meal": "filet-o-fish-meal.jpg",
+      "french-vanilla-latte": "french-vanilla-latte.jpg",
+      "frozen-coca-cola-classic": "frozen-coca-cola-classic.jpg",
+      "frozen-fanta-blue-raspberry": "frozen-fanta-blue-raspberry.jpg",
+      "fruit-and-maple-oatmeal": "fruit-and-maple-oatmeal.jpg",
+      "hamburger-the-classic-mcdonald-s-burger": "hamburger-the-classic-mcdonald-s-burger.jpg",
+      "hash-browns": "hash-browns.jpg",
+      "hi-c-orange-lavaburst": "hi-c-orange-lavaburst.jpg",
+      "honest-kids-appley-ever-after-organic-juice-drink": "honest-kids-appley-ever-after-organic-juice-drink.jpg",
+      "honey": "honey.jpg",
+      "honey-mustard-sauce": "honey-mustard-sauce.jpg",
+      "hot-caramel-sundae": "hot-caramel-sundae.jpg",
+      "hot-fudge-sundae": "hot-fudge-sundae.jpg",
+      "hot-tea": "hot-tea.jpg",
+      "hotcakes": "hotcakes.jpg",
+      "hotcakes-and-sausage": "hotcakes-and-sausage.jpg",
+      "ketchup-packet": "ketchup-packet.jpg",
+      "lemonade": "lemonade.jpg",
+      "mango-pineapple-smoothie": "mango-pineapple-smoothie.jpg",
+      "mayonnaise-packet": "mayonnaise-packet.jpg",
+      "mccafe-americano": "mccafe-americano.jpg",
+      "mccafe-cappuccino": "mccafe-cappuccino.jpg",
+      "mccafe-caramel-cappuccino": "mccafe-caramel-cappuccino.jpg",
+      "mccafe-caramel-frappe": "mccafe-caramel-frappe.jpg",
+      "mccafe-caramel-latte": "mccafe-caramel-latte.jpg",
+      "mccafe-caramel-macchiato": "mccafe-caramel-macchiato.jpg",
+      "mccafe-french-vanilla-cappuccino": "mccafe-french-vanilla-cappuccino.jpg",
+      "mccafe-french-vanilla-latte": "mccafe-french-vanilla-latte.jpg",
+      "mccafe-hot-chocolate": "mccafe-hot-chocolate.jpg",
+      "mccafe-iced-caramel-coffee": "mccafe-iced-caramel-coffee.jpg",
+      "mccafe-iced-caramel-latte": "mccafe-iced-caramel-latte.jpg",
+      "mccafe-iced-caramel-macchiato": "mccafe-iced-caramel-macchiato.jpg",
+      "mccafe-iced-coffee": "mccafe-iced-coffee.jpg",
+      "mccafe-iced-french-vanilla-coffee": "mccafe-iced-french-vanilla-coffee.jpg",
+      "mccafe-iced-french-vanilla-latte": "mccafe-iced-french-vanilla-latte.jpg",
+      "mccafe-iced-latte": "mccafe-iced-latte.jpg",
+      "mccafe-iced-mocha": "mccafe-iced-mocha.jpg",
+      "mccafe-iced-mocha-latte": "mccafe-iced-mocha-latte.jpg",
+      "mccafe-latte": "mccafe-latte.jpg",
+      "mccafe-mocha-frappe": "mccafe-mocha-frappe.jpg",
+      "mccafe-mocha-latte": "mccafe-mocha-latte.jpg",
+      "mccafe-premium-roast-coffee": "mccafe-premium-roast-coffee.jpg",
+      "mcchicken": "mcchicken.jpg",
+      "mccrispy": "mccrispy.jpg",
+      "mccrispy-meal": "mccrispy-meal.jpg",
+      "mccrispy-strips": "mccrispy-strips.jpg",
+      "mccrispy-strips-meal": "mccrispy-strips-meal.jpg",
+      "mcdouble": "mcdouble.jpg",
+      "mcflurry-with-mandm-s-candies": "mcflurry-with-mandm-s-candies.jpg",
+      "mcflurry-with-oreo-cookies": "mcflurry-with-oreo-cookies.jpg",
+      "minute-maid-premium-orange-juice": "minute-maid-premium-orange-juice.jpg",
+      "mustard-packet": "mustard-packet.jpg",
+      "quarter-pounder-with-cheese": "quarter-pounder-with-cheese.jpg",
+      "quarter-pounder-with-cheese-deluxe": "quarter-pounder-with-cheese-deluxe.jpg",
+      "quarter-pounder-with-cheese-deluxe-meal": "quarter-pounder-with-cheese-deluxe-meal.jpg",
+      "quarter-pounder-with-cheese-meal": "quarter-pounder-with-cheese-meal.jpg",
+      "ranch-and-spicy-snack-wrap-meal": "ranch-and-spicy-snack-wrap-meal.jpg",
+      "ranch-snack-wrap": "ranch-snack-wrap.jpg",
+      "ranch-snack-wrap-meal": "ranch-snack-wrap-meal.jpg",
+      "reduced-sugar-low-fat-chocolate-milk-jug": "reduced-sugar-low-fat-chocolate-milk-jug.jpg",
+      "sausage-biscuit": "sausage-biscuit.jpg",
+      "sausage-biscuit-with-egg": "sausage-biscuit-with-egg.jpg",
+      "sausage-biscuit-with-egg-meal": "sausage-biscuit-with-egg-meal.jpg",
+      "sausage-burrito": "sausage-burrito.jpg",
+      "sausage-burrito-meal": "sausage-burrito-meal.jpg",
+      "sausage-mcgriddles": "sausage-mcgriddles.jpg",
+      "sausage-mcgriddles-meal": "sausage-mcgriddles-meal.jpg",
+      "sausage-mcmuffin": "sausage-mcmuffin.jpg",
+      "sausage-mcmuffin-with-egg": "sausage-mcmuffin-with-egg.jpg",
+      "sausage-mcmuffin-with-egg-meal": "sausage-mcmuffin-with-egg-meal.jpg",
+      "sausage-egg-and-cheese-bagel": "sausage-egg-and-cheese-bagel.jpg",
+      "sausage-egg-and-cheese-mcgriddles": "sausage-egg-and-cheese-mcgriddles.jpg",
+      "sausage-egg-and-cheese-mcgriddles-meal": "sausage-egg-and-cheese-mcgriddles-meal.jpg",
+      "small-world-famous-fries": "small-world-famous-fries.jpg",
+      "spicy-buffalo-sauce": "spicy-buffalo-sauce.jpg",
+      "spicy-deluxe-mccrispy": "spicy-deluxe-mccrispy.jpg",
+      "spicy-deluxe-mccrispy-meal": "spicy-deluxe-mccrispy-meal.jpg",
+      "spicy-mccrispy": "spicy-mccrispy.jpg",
+      "spicy-mccrispy-meal": "spicy-mccrispy-meal.jpg",
+      "spicy-snack-wrap": "spicy-snack-wrap.jpg",
+      "spicy-snack-wrap-meal": "spicy-snack-wrap-meal.jpg",
+      "sprite": "sprite.jpg",
+      "steak-egg-and-cheese-bagel": "steak-egg-and-cheese-bagel.jpg",
+      "steak-egg-and-cheese-bagel-meal": "steak-egg-and-cheese-bagel-meal.jpg",
+      "strawberry-banana-smoothie": "strawberry-banana-smoothie.jpg",
+      "strawberry-shake": "strawberry-shake.jpg",
+      "sweet-n-sour-sauce": "sweet-n-sour-sauce.jpg",
+      "sweet-tea": "sweet-tea.jpg",
+      "tangy-barbeque-sauce": "tangy-barbeque-sauce.jpg",
+      "the-daily-double-meal-deal": "the-daily-double-meal-deal.jpg",
+      "the-mcchicken-meal-deal": "the-mcchicken-meal-deal.jpg",
+      "the-mcdouble-meal-deal": "the-mcdouble-meal-deal.jpg",
+      "unsweetened-iced-tea": "unsweetened-iced-tea.jpg",
+      "vanilla-cone": "vanilla-cone.jpg",
+      "vanilla-shake": "vanilla-shake.jpg",
+      "world-famous-fries": "world-famous-fries.jpg"
+    }
+    </script>
+
+    <script>
+        const IMAGE_MANIFEST = JSON.parse(document.getElementById('imageManifest').textContent);
+        const PRODUCT_IMAGE_SLUGS = {
+            "big-mac": "big-mac",
+            "double-big-mac": null,
+            "cheeseburger": "cheeseburger",
+            "double-cheeseburger": "double-cheeseburger",
+            "triple-cheeseburger": null,
+            "quarter-pounder": "quarter-pounder-with-cheese",
+            "double-quarter-pounder": "double-quarter-pounder-with-cheese",
+            "hamburger": "hamburger-the-classic-mcdonald-s-burger",
+            "classic-angus": null,
+            "bbq-bacon-angus": null,
+            "big-arch": null,
+            "mcnuggets-3pc": "4-piece-chicken-mcnuggets",
+            "mcnuggets-6pc": "6-piece-chicken-mcnuggets",
+            "mcnuggets-10pc": "10-piece-chicken-mcnuggets",
+            "mcnuggets-20pc": "20-piece-chicken-mcnuggets",
+            "mcnuggets-40pc": "40-piece-chicken-mcnuggets",
+            "mcchicken": "mcchicken",
+            "double-mcchicken": "mcchicken",
+            "mccrispy": "mccrispy",
+            "mccrispy-deluxe": "deluxe-mccrispy",
+            "mcspicy": "spicy-mccrispy",
+            "chicken-n-cheese": null,
+            "filet-o-fish": "filet-o-fish",
+            "double-filet-o-fish": "filet-o-fish",
+            "mcwings-3pc": null,
+            "mcwings-5pc": null,
+            "mcwings-10pc": null,
+            "classic-chicken-mcwrap": null,
+            "spicy-chicken-mcwrap": "spicy-snack-wrap",
+            "chicken-snack-wrap": "ranch-snack-wrap",
+            "fries-small": "small-world-famous-fries",
+            "fries-medium": "world-famous-fries",
+            "fries-large": "world-famous-fries",
+            "bacon-egg-mcmuffin": "egg-mcmuffin",
+            "double-bacon-egg-mcmuffin": "egg-mcmuffin",
+            "sausage-mcmuffin": "sausage-mcmuffin",
+            "double-sausage-mcmuffin": "sausage-mcmuffin",
+            "sausage-egg-mcmuffin": "sausage-mcmuffin-with-egg",
+            "double-sausage-egg-mcmuffin": "sausage-mcmuffin-with-egg",
+            "chicken-mcmuffin": null,
+            "chicken-bacon-mcmuffin": null,
+            "big-brekkie-burger": null,
+            "mighty-mcmuffin": null,
+            "brekkie-wrap": null,
+            "mega-brekkie-wrap": null,
+            "ham-cheese-pocket": null,
+            "hotcakes": "hotcakes",
+            "hash-brown": "hash-browns",
+            "bbq-sauce": "tangy-barbeque-sauce",
+            "sweet-sour-sauce": "sweet-n-sour-sauce",
+            "sweet-mustard-sauce": "honey-mustard-sauce",
+            "spicy-buffalo-sauce": "spicy-buffalo-sauce",
+            "ranch-sauce": "creamy-ranch-sauce",
+            "ketchup": "ketchup-packet",
+            "aioli": null,
+            "apple-slices": "apple-slices"
+        };
+        const IMAGE_PLACEHOLDER = "images/placeholder.svg";
+
+        function slugifyName(name) {
+            return name
+                .replace(/&/g, 'and')
+                .normalize('NFKD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
         }
 
-        function filterItems(searchTerm) {
-            const filtered = menuItems.filter(item =>
-                item.name.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-            renderItems(filtered);
+        function getProductImage(product) {
+            const override = PRODUCT_IMAGE_SLUGS[product.id];
+            const slug = override === undefined ? slugifyName(product.name) : override;
+            if (slug && IMAGE_MANIFEST[slug]) {
+                return `images/${IMAGE_MANIFEST[slug]}`;
+            }
+            return IMAGE_PLACEHOLDER;
         }
 
-        searchInput.addEventListener('input', (e) => {
-            filterItems(e.target.value);
+        // Product database with nutrition data (images resolved via IMAGE_MANIFEST)
+        const products = [
+            // BEEF
+            { id: "big-mac", name: "Big Mac", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007-005_BigMac_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "219g", energyKJ: 2330, energyCal: 557, protein: 24.6, fat: 29.4, saturatedFat: 10.8, carbs: 44.9, sugars: 8.8, sodium: 1140 }}},
+            { id: "double-big-mac", name: "Double Big Mac", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007-005_BigMac_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "268g", energyKJ: 3190, energyCal: 762, protein: 39.7, fat: 43.9, saturatedFat: 17.7, carbs: 47.8, sugars: 9.3, sodium: 1489 }}},
+            { id: "cheeseburger", name: "Cheeseburger", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_CheeseburgerAlt_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "119g", energyKJ: 1280, energyCal: 306, protein: 14.5, fat: 13.0, saturatedFat: 6.4, carbs: 29.9, sugars: 7.3, sodium: 735 }}},
+            { id: "double-cheeseburger", name: "Double Cheeseburger", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_DoubleCheeseburger_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "176g", energyKJ: 1910, energyCal: 457, protein: 24.9, fat: 23.6, saturatedFat: 12.5, carbs: 32.2, sugars: 8.2, sodium: 1120 }}},
+            { id: "triple-cheeseburger", name: "Triple Cheeseburger", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_DoubleCheeseburger_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "233g", energyKJ: 2540, energyCal: 607, protein: 35.3, fat: 34.1, saturatedFat: 18.5, carbs: 34.5, sugars: 9.0, sodium: 1457 }}},
+            { id: "quarter-pounder", name: "Quarter Pounder", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_QuarterPounderCheese_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "212g", energyKJ: 2230, energyCal: 532, protein: 30.2, fat: 28.7, saturatedFat: 14.9, carbs: 37.2, sugars: 10.5, sodium: 1192 }}},
+            { id: "double-quarter-pounder", name: "Double Quarter Pounder", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_DoubleQuarterPounderwithCheese_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "314g", energyKJ: 3370, energyCal: 804, protein: 52.3, fat: 50.6, saturatedFat: 26.8, carbs: 34.2, sugars: 8.3, sodium: 1429 }}},
+            { id: "hamburger", name: "Hamburger", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_Hamburger_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "105g", energyKJ: 1080, energyCal: 257, protein: 11.6, fat: 9.2, saturatedFat: 3.9, carbs: 29.1, sugars: 6.8, sodium: 572 }}},
+            { id: "classic-angus", name: "Classic Angus", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_QuarterPounderCheese_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "312g", energyKJ: 2950, energyCal: 706, protein: 40.1, fat: 39.3, saturatedFat: 18.7, carbs: 46.2, sugars: 9.3, sodium: 1090 }}},
+            { id: "bbq-bacon-angus", name: "BBQ Bacon Angus", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007_QuarterPounderCheese_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "296g", energyKJ: 3320, energyCal: 794, protein: 48.1, fat: 44.0, saturatedFat: 21.0, carbs: 49.9, sugars: 12.4, sodium: 1570 }}},
+            { id: "big-arch", name: "Big Arch", category: "beef", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0007-005_BigMac_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "404g", energyKJ: 4480, energyCal: 1071, protein: 55.8, fat: 69.7, saturatedFat: 28.6, carbs: 54.8, sugars: 10.4, sodium: 2020 }}},
+            // CHICKEN AND FISH
+            { id: "mcnuggets-3pc", name: "Chicken McNuggets 3pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_6Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "48.5g", energyKJ: 452, energyCal: 108, protein: 6.0, fat: 6.5, saturatedFat: 0.8, carbs: 6.2, sugars: 0.2, sodium: 191 }}},
+            { id: "mcnuggets-6pc", name: "Chicken McNuggets 6pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_6Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "97g", energyKJ: 905, energyCal: 216, protein: 12.1, fat: 13.0, saturatedFat: 1.6, carbs: 12.4, sugars: 0.4, sodium: 383 }}},
+            { id: "mcnuggets-10pc", name: "Chicken McNuggets 10pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_10Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "162g", energyKJ: 1510, energyCal: 360, protein: 20.1, fat: 21.7, saturatedFat: 2.6, carbs: 20.6, sugars: 0.7, sodium: 638 }}},
+            { id: "mcnuggets-20pc", name: "Chicken McNuggets 20pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_20Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "324g", energyKJ: 3020, energyCal: 721, protein: 40.2, fat: 43.4, saturatedFat: 5.2, carbs: 41.2, sugars: 1.3, sodium: 1280 }}},
+            { id: "mcnuggets-40pc", name: "Chicken McNuggets 40pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_20Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "648g", energyKJ: 6030, energyCal: 1440, protein: 80.4, fat: 86.8, saturatedFat: 10.5, carbs: 82.5, sugars: 2.7, sodium: 2550 }}},
+            { id: "mcchicken", name: "McChicken", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "196g", energyKJ: 1820, energyCal: 435, protein: 16.7, fat: 20.0, saturatedFat: 2.5, carbs: 45.2, sugars: 6.9, sodium: 676 }}},
+            { id: "double-mcchicken", name: "Double McChicken", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "301g", energyKJ: 2890, energyCal: 690, protein: 28.3, fat: 37.0, saturatedFat: 4.5, carbs: 59.3, sugars: 7.8, sodium: 1071 }}},
+            { id: "mccrispy", name: "McCrispy", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "229g", energyKJ: 2480, energyCal: 634, protein: 26.2, fat: 27.6, saturatedFat: 2.8, carbs: 59.2, sugars: 5.5, sodium: 1223 }}},
+            { id: "mccrispy-deluxe", name: "McCrispy Deluxe", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "294g", energyKJ: 2720, energyCal: 690, protein: 29.5, fat: 31.9, saturatedFat: 5.7, carbs: 60.3, sugars: 6.1, sodium: 1458 }}},
+            { id: "mcspicy", name: "McSpicy", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "245g", energyKJ: 2440, energyCal: 584, protein: 30.0, fat: 29.2, saturatedFat: 3.9, carbs: 48.5, sugars: 6.9, sodium: 1203 }}},
+            { id: "chicken-n-cheese", name: "Chicken 'n' Cheese", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0000_McChicken_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "140g", energyKJ: 1750, energyCal: 419, protein: 17.0, fat: 21.1, saturatedFat: 3.7, carbs: 39.0, sugars: 5.4, sodium: 706 }}},
+            { id: "filet-o-fish", name: "Filet-O-Fish", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0021_FiletOFish_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "141g", energyKJ: 1420, energyCal: 339, protein: 14.6, fat: 14.6, saturatedFat: 2.5, carbs: 34.6, sugars: 5.2, sodium: 626 }}},
+            { id: "double-filet-o-fish", name: "Double Filet-O-Fish", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202201_0021_FiletOFish_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "231g", energyKJ: 2250, energyCal: 537, protein: 25.4, fat: 26.8, saturatedFat: 4.6, carbs: 44.7, sugars: 6.3, sodium: 1021 }}},
+            { id: "mcwings-3pc", name: "McWings 3pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_6Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "210g", energyKJ: 2010, energyCal: 480, protein: 27.5, fat: 30.2, saturatedFat: 5.0, carbs: 20.6, sugars: 0.2, sodium: 1300 }}},
+            { id: "mcwings-5pc", name: "McWings 5pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_6Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "350g", energyKJ: 3340, energyCal: 799, protein: 45.9, fat: 50.4, saturatedFat: 8.4, carbs: 34.4, sugars: 0.4, sodium: 2170 }}},
+            { id: "mcwings-10pc", name: "McWings 10pc", category: "chicken", image: "https://s7d1.scene7.com/is/image/mcdonalds/DC_202002_0006_ChickenMcNuggets_10Piece_832x472:1-3-product-tile-desktop", nutrition: { perServe: { servingSize: "700g", energyKJ: 6690, energyCal: 1600, protein: 91.7, fat: 100.8, saturatedFat: 16.8, carbs: 68.6, sugars: 0.7, sodium: 4340 }}},
+            // WRAPS
+            { id: "classic-chicken-mcwrap", name: "Classic Chicken McWrap", category: "wraps", nutrition: { perServe: { servingSize: "289g", energyKJ: 2214, energyCal: 530, protein: 21.5, fat: 25.0, saturatedFat: 4.2, carbs: 52.9, sugars: 3.2, sodium: 986 }}},
+            { id: "spicy-chicken-mcwrap", name: "Spicy Chicken McWrap", category: "wraps", nutrition: { perServe: { servingSize: "298g", energyKJ: 2470, energyCal: 593, protein: 30.6, fat: 32.6, saturatedFat: 5.6, carbs: 42.9, sugars: 3.2, sodium: 1224 }}},
+            { id: "chicken-snack-wrap", name: "Chicken Snack Wrap", category: "wraps", nutrition: { perServe: { servingSize: "123g", energyKJ: 1180, energyCal: 309, protein: 14.0, fat: 9.6, saturatedFat: 2.4, carbs: 32.5, sugars: 6.6, sodium: 609 }}},
+            // FRIES
+            { id: "fries-small", name: "Fries Small", category: "fries", nutrition: { perServe: { servingSize: "72g", energyKJ: 916, energyCal: 219, protein: 3.5, fat: 11.5, saturatedFat: 0.9, carbs: 24.3, sugars: 0.0, sodium: 210 }}},
+            { id: "fries-medium", name: "Fries Medium", category: "fries", nutrition: { perServe: { servingSize: "104g", energyKJ: 1320, energyCal: 316, protein: 5.0, fat: 16.6, saturatedFat: 1.4, carbs: 35.2, sugars: 0.0, sodium: 304 }}},
+            { id: "fries-large", name: "Fries Large", category: "fries", nutrition: { perServe: { servingSize: "128g", energyKJ: 1630, energyCal: 389, protein: 6.1, fat: 20.5, saturatedFat: 1.7, carbs: 43.3, sugars: 0.0, sodium: 374 }}},
+            // BREAKFAST
+            { id: "bacon-egg-mcmuffin", name: "Bacon & Egg McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "134g", energyKJ: 1210, energyCal: 290, protein: 17.3, fat: 13.0, saturatedFat: 5.2, carbs: 25.2, sugars: 2.7, sodium: 605 }}},
+            { id: "double-bacon-egg-mcmuffin", name: "Double Bacon & Egg McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "148g", energyKJ: 1330, energyCal: 318, protein: 20.7, fat: 14.4, saturatedFat: 5.8, carbs: 25.4, sugars: 3.0, sodium: 794 }}},
+            { id: "sausage-mcmuffin", name: "Sausage McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "111g", energyKJ: 1260, energyCal: 300, protein: 16.0, fat: 14.6, saturatedFat: 7.4, carbs: 25.3, sugars: 2.6, sodium: 571 }}},
+            { id: "double-sausage-mcmuffin", name: "Double Sausage McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "150g", energyKJ: 1720, energyCal: 412, protein: 24.2, fat: 23.2, saturatedFat: 11.8, carbs: 25.8, sugars: 2.8, sodium: 769 }}},
+            { id: "sausage-egg-mcmuffin", name: "Sausage & Egg McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "159g", energyKJ: 1560, energyCal: 374, protein: 22.1, fat: 20.1, saturatedFat: 9.1, carbs: 25.4, sugars: 2.7, sodium: 614 }}},
+            { id: "double-sausage-egg-mcmuffin", name: "Double Sausage & Egg McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "199g", energyKJ: 2030, energyCal: 485, protein: 30.2, fat: 28.7, saturatedFat: 13.5, carbs: 26.0, sugars: 3.0, sodium: 812 }}},
+            { id: "chicken-mcmuffin", name: "Chicken McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "166g", energyKJ: 1710, energyCal: 410, protein: 19.5, fat: 19.5, saturatedFat: 4.7, carbs: 37.9, sugars: 2.2, sodium: 710 }}},
+            { id: "chicken-bacon-mcmuffin", name: "Chicken and Bacon McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "180g", energyKJ: 1930, energyCal: 461, protein: 23.6, fat: 21.9, saturatedFat: 5.4, carbs: 41.1, sugars: 3.2, sodium: 937 }}},
+            { id: "big-brekkie-burger", name: "Big Brekkie Burger", category: "breakfast", nutrition: { perServe: { servingSize: "205g", energyKJ: 1880, energyCal: 449, protein: 29.1, fat: 23.0, saturatedFat: 10.2, carbs: 30.4, sugars: 6.6, sodium: 1160 }}},
+            { id: "mighty-mcmuffin", name: "Mighty McMuffin", category: "breakfast", nutrition: { perServe: { servingSize: "311g", energyKJ: 3070, energyCal: 735, protein: 38.9, fat: 39.1, saturatedFat: 14.2, carbs: 52.3, sugars: 11.5, sodium: 1648 }}},
+            { id: "brekkie-wrap", name: "Brekkie Wrap", category: "breakfast", nutrition: { perServe: { servingSize: "192g", energyKJ: 1880, energyCal: 449, protein: 17.9, fat: 25.1, saturatedFat: 7.6, carbs: 36.5, sugars: 5.7, sodium: 1000 }}},
+            { id: "mega-brekkie-wrap", name: "Mega Brekkie Wrap", category: "breakfast", nutrition: { perServe: { servingSize: "344g", energyKJ: 3680, energyCal: 861, protein: 45.8, fat: 53.7, saturatedFat: 22.7, carbs: 53.8, sugars: 7.7, sodium: 1941 }}},
+            { id: "ham-cheese-pocket", name: "Ham & Cheese Pocket", category: "breakfast", nutrition: { perServe: { servingSize: "154g", energyKJ: 1750, energyCal: 418, protein: 15.3, fat: 20.2, saturatedFat: 10.7, carbs: 44.0, sugars: 15.9, sodium: 1130 }}},
+            { id: "hotcakes", name: "Hotcakes with Butter and Syrup", category: "breakfast", nutrition: { perServe: { servingSize: "223g", energyKJ: 2490, energyCal: 596, protein: 9.4, fat: 18.6, saturatedFat: 8.4, carbs: 95.7, sugars: 44.2, sodium: 575 }}},
+            { id: "hash-brown", name: "Hash Brown", category: "breakfast", nutrition: { perServe: { servingSize: "55g", energyKJ: 600, energyCal: 143, protein: 1.4, fat: 9.6, saturatedFat: 0.8, carbs: 12.4, sugars: 0.1, sodium: 293 }}},
+            // CONDIMENTS
+            { id: "bbq-sauce", name: "BBQ Sauce", category: "condiments", nutrition: { perServe: { servingSize: "28g", energyKJ: 182, energyCal: 44, protein: 0.3, fat: 0.1, saturatedFat: 0.0, carbs: 10.2, sugars: 9.1, sodium: 169 }}},
+            { id: "sweet-sour-sauce", name: "Sweet & Sour Sauce", category: "condiments", nutrition: { perServe: { servingSize: "28g", energyKJ: 204, energyCal: 49, protein: 0.1, fat: 0.1, saturatedFat: 0.0, carbs: 11.6, sugars: 10.4, sodium: 126 }}},
+            { id: "sweet-mustard-sauce", name: "Sweet Mustard Sauce", category: "condiments", nutrition: { perServe: { servingSize: "28g", energyKJ: 327, energyCal: 78, protein: 0.3, fat: 2.9, saturatedFat: 0.2, carbs: 12.7, sugars: 5.6, sodium: 109 }}},
+            { id: "spicy-buffalo-sauce", name: "Spicy Buffalo Sauce", category: "condiments", nutrition: { perServe: { servingSize: "25g", energyKJ: 117, energyCal: 28, protein: 0.3, fat: 0.8, saturatedFat: 0.2, carbs: 4.8, sugars: 3.6, sodium: 260 }}},
+            { id: "ranch-sauce", name: "Ranch Sauce", category: "condiments", nutrition: { perServe: { servingSize: "28g", energyKJ: 408, energyCal: 97, protein: 0.5, fat: 9.1, saturatedFat: 0.7, carbs: 3.9, sugars: 1.0, sodium: 162 }}},
+            { id: "ketchup", name: "Ketchup", category: "condiments", nutrition: { perServe: { servingSize: "9g", energyKJ: 43, energyCal: 10, protein: 0.1, fat: 0.0, saturatedFat: 0.0, carbs: 2.3, sugars: 2.1, sodium: 92 }}},
+            { id: "aioli", name: "Aioli", category: "condiments", nutrition: { perServe: { servingSize: "28g", energyKJ: 775, energyCal: 185, protein: 0.5, fat: 20.0, saturatedFat: 1.6, carbs: 1.5, sugars: 1.0, sodium: 112 }}},
+            // FRUIT
+            { id: "apple-slices", name: "Apple Slices", category: "fruit", nutrition: { perServe: { servingSize: "80g", energyKJ: 174, energyCal: 41, protein: 0.3, fat: 0.2, saturatedFat: 0.1, carbs: 8.5, sugars: 7.9, sodium: 2 }}}
+        ];
+
+        // State
+        let selectedItems = [];
+        let modalCategory = 'all';
+        let modalSearchTerm = '';
+
+        // Load starred items from localStorage or use defaults
+        let starredItems = JSON.parse(localStorage.getItem('starredItems')) || [
+            'mcnuggets-20pc',
+            'double-cheeseburger',
+            'sweet-sour-sauce'
+        ];
+
+        // DV Reference Values (based on 2000 calorie diet)
+        const DV = {
+            carbs: 300,      // grams
+            fat: 78,         // grams
+            saturatedFat: 20, // grams
+            sodium: 2300     // mg
+        };
+
+        // Calculate totals
+        function calculateTotals() {
+            const included = selectedItems.filter(item => item.included);
+
+            const totals = {
+                energyKJ: 0,
+                energyCal: 0,
+                protein: 0,
+                fat: 0,
+                saturatedFat: 0,
+                carbs: 0,
+                sugars: 0,
+                sodium: 0
+            };
+
+            included.forEach(item => {
+                const n = item.product.nutrition.perServe;
+                totals.energyKJ += n.energyKJ;
+                totals.energyCal += n.energyCal;
+                totals.protein += n.protein;
+                totals.fat += n.fat;
+                totals.saturatedFat += n.saturatedFat;
+                totals.carbs += n.carbs;
+                totals.sugars += n.sugars;
+                totals.sodium += n.sodium;
+            });
+
+            return totals;
+        }
+
+        // Update summary display
+        function updateSummary() {
+            const totals = calculateTotals();
+
+            document.getElementById('totalCalories').textContent = Math.round(totals.energyCal);
+            document.getElementById('totalProtein').textContent = totals.protein.toFixed(1) + 'g';
+            document.getElementById('totalCarbs').textContent = totals.carbs.toFixed(1) + 'g';
+            document.getElementById('totalFat').textContent = totals.fat.toFixed(1) + 'g';
+
+            document.getElementById('carbsDV').textContent = `(${Math.round((totals.carbs / DV.carbs) * 100)}% DV)`;
+            document.getElementById('fatDV').textContent = `(${Math.round((totals.fat / DV.fat) * 100)}% DV)`;
+
+            document.getElementById('saturatedFat').innerHTML = `${totals.saturatedFat.toFixed(1)}g <span class="dv-percent" id="satFatDV">(${Math.round((totals.saturatedFat / DV.saturatedFat) * 100)}% DV)</span>`;
+            document.getElementById('totalSugars').textContent = totals.sugars.toFixed(1) + 'g';
+            document.getElementById('totalSodium').innerHTML = `${Math.round(totals.sodium)}mg <span class="dv-percent">(${Math.round((totals.sodium / DV.sodium) * 100)}% DV)</span>`;
+            document.getElementById('totalEnergyKJ').textContent = Math.round(totals.energyKJ) + 'kJ';
+        }
+
+        // Render items list
+        function renderItemsList() {
+            const itemsList = document.getElementById('itemsList');
+            const itemCount = document.getElementById('itemCount');
+            const itemsFooter = document.getElementById('itemsFooter');
+
+            itemCount.textContent = selectedItems.length;
+
+            if (selectedItems.length === 0) {
+                itemsList.innerHTML = `
+                    <div class="empty-state">
+                        <h2>Start Building Your Meal</h2>
+                        <p>Click "Add more items" to add products to your nutrition calculator</p>
+                        <button class="btn-add" onclick="openModal()">Add more items</button>
+                    </div>
+                `;
+                itemsFooter.style.display = 'none';
+            } else {
+                itemsList.innerHTML = selectedItems.map((item, index) => {
+                    const imageUrl = getProductImage(item.product);
+                    return `
+                        <div class="item-card">
+                            <div class="item-checkbox">
+                                <input type="checkbox" ${item.included ? 'checked' : ''}
+                                       onchange="toggleItem(${index})"
+                                       id="check-${index}">
+                                <label for="check-${index}" style="display: none;">Include</label>
+                            </div>
+                            <img class="item-image" src="${imageUrl}" alt="${item.product.name}">
+                            <div class="item-info">
+                                <div class="item-name">${item.product.name}</div>
+                                <div class="item-ingredients">Standard ingredients</div>
+                                <div class="item-calories">${item.product.nutrition.perServe.energyCal} Cal.</div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn-edit" onclick="alert('Ingredient customization coming soon!')">Edit Ingredients</button>
+                                <button class="btn-delete" onclick="deleteItem(${index})">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                itemsFooter.style.display = 'flex';
+            }
+
+            updateSummary();
+        }
+
+        // Toggle item inclusion
+        function toggleItem(index) {
+            selectedItems[index].included = !selectedItems[index].included;
+            updateSummary();
+        }
+
+        // Delete item
+        function deleteItem(index) {
+            selectedItems.splice(index, 1);
+            renderItemsList();
+        }
+
+        // Delete all items
+        function deleteAllItems() {
+            if (confirm('Are you sure you want to delete all items?')) {
+                selectedItems = [];
+                renderItemsList();
+            }
+        }
+
+        // Add product
+        function addProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                selectedItems.push({
+                    product: product,
+                    included: true
+                });
+                renderItemsList();
+                closeModal();
+            }
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addItemsModal').classList.add('active');
+            renderModalProducts();
+        }
+
+        function closeModal() {
+            document.getElementById('addItemsModal').classList.remove('active');
+        }
+
+        // Toggle star
+        function toggleStar(productId, event) {
+            event.stopPropagation();
+            const index = starredItems.indexOf(productId);
+            if (index > -1) {
+                starredItems.splice(index, 1);
+            } else {
+                starredItems.push(productId);
+            }
+            localStorage.setItem('starredItems', JSON.stringify(starredItems));
+            renderModalProducts();
+        }
+
+        // Filter modal products
+        function filterModalProducts() {
+            return products.filter(product => {
+                const matchesCategory = modalCategory === 'all' ||
+                                       product.category === modalCategory ||
+                                       (modalCategory === 'starred' && starredItems.includes(product.id));
+                const matchesSearch = product.name.toLowerCase().includes(modalSearchTerm.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+        }
+
+        // Render modal products
+        function renderModalProducts() {
+            const grid = document.getElementById('modalProductGrid');
+            const filtered = filterModalProducts();
+
+            grid.innerHTML = filtered.map(product => {
+                const isStarred = starredItems.includes(product.id);
+                const imageUrl = getProductImage(product);
+                return `
+                    <div class="product-card" onclick="addProduct('${product.id}')">
+                        <button class="star-btn ${isStarred ? 'starred' : ''}"
+                                onclick="toggleStar('${product.id}', event)"
+                                title="${isStarred ? 'Remove from starred' : 'Add to starred'}">
+                            ${isStarred ? '★' : '☆'}
+                        </button>
+                        <img src="${imageUrl}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <div class="calories">${product.nutrition.perServe.energyCal} Cal.</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modal search
+        document.getElementById('modalSearch').addEventListener('input', (e) => {
+            modalSearchTerm = e.target.value;
+            renderModalProducts();
+        });
+
+        // Modal category filter
+        document.getElementById('modalCategories').addEventListener('click', (e) => {
+            if (e.target.classList.contains('category-btn')) {
+                document.querySelectorAll('#modalCategories .category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                modalCategory = e.target.dataset.category;
+                renderModalProducts();
+            }
+        });
+
+        // Close modal on background click
+        document.getElementById('addItemsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'addItemsModal') {
+                closeModal();
+            }
         });
 
         // Initial render
-        renderItems(menuItems);
+        renderItemsList();
     </script>
 </body>
 </html>
