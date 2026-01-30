@@ -363,6 +363,34 @@
             background-color: #FFBC0D;
         }
 
+        .star-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.2s;
+        }
+
+        .star-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .star-btn.starred {
+            color: #FFBC0D;
+        }
+
+        .star-btn:not(.starred) {
+            color: #ddd;
+        }
+
+        .product-card {
+            position: relative;
+        }
+
         .modal-body {
             padding: 30px;
         }
@@ -567,6 +595,7 @@
                     <input type="text" class="search-input" id="modalSearch" placeholder="Search for menu items...">
                     <div class="category-filters" id="modalCategories">
                         <button class="category-btn active" data-category="all">All</button>
+                        <button class="category-btn" data-category="starred">⭐ Starred</button>
                         <button class="category-btn" data-category="beef">Beef</button>
                         <button class="category-btn" data-category="chicken">Chicken & Fish</button>
                         <button class="category-btn" data-category="wraps">Wraps</button>
@@ -655,6 +684,13 @@
         let selectedItems = [];
         let modalCategory = 'all';
         let modalSearchTerm = '';
+
+        // Load starred items from localStorage or use defaults
+        let starredItems = JSON.parse(localStorage.getItem('starredItems')) || [
+            'mcnuggets-20pc',
+            'double-cheeseburger',
+            'sweet-sour-sauce'
+        ];
 
         // DV Reference Values (based on 2000 calorie diet)
         const DV = {
@@ -799,10 +835,25 @@
             document.getElementById('addItemsModal').classList.remove('active');
         }
 
+        // Toggle star
+        function toggleStar(productId, event) {
+            event.stopPropagation();
+            const index = starredItems.indexOf(productId);
+            if (index > -1) {
+                starredItems.splice(index, 1);
+            } else {
+                starredItems.push(productId);
+            }
+            localStorage.setItem('starredItems', JSON.stringify(starredItems));
+            renderModalProducts();
+        }
+
         // Filter modal products
         function filterModalProducts() {
             return products.filter(product => {
-                const matchesCategory = modalCategory === 'all' || product.category === modalCategory;
+                const matchesCategory = modalCategory === 'all' ||
+                                       product.category === modalCategory ||
+                                       (modalCategory === 'starred' && starredItems.includes(product.id));
                 const matchesSearch = product.name.toLowerCase().includes(modalSearchTerm.toLowerCase());
                 return matchesCategory && matchesSearch;
             });
@@ -813,13 +864,21 @@
             const grid = document.getElementById('modalProductGrid');
             const filtered = filterModalProducts();
 
-            grid.innerHTML = filtered.map(product => `
-                <div class="product-card" onclick="addProduct('${product.id}')">
-                    <img src="https://via.placeholder.com/120?text=${encodeURIComponent(product.name)}" alt="${product.name}">
-                    <h3>${product.name}</h3>
-                    <div class="calories">${product.nutrition.perServe.energyCal} Cal.</div>
-                </div>
-            `).join('');
+            grid.innerHTML = filtered.map(product => {
+                const isStarred = starredItems.includes(product.id);
+                return `
+                    <div class="product-card" onclick="addProduct('${product.id}')">
+                        <button class="star-btn ${isStarred ? 'starred' : ''}"
+                                onclick="toggleStar('${product.id}', event)"
+                                title="${isStarred ? 'Remove from starred' : 'Add to starred'}">
+                            ${isStarred ? '★' : '☆'}
+                        </button>
+                        <img src="https://via.placeholder.com/120?text=${encodeURIComponent(product.name)}" alt="${product.name}">
+                        <h3>${product.name}</h3>
+                        <div class="calories">${product.nutrition.perServe.energyCal} Cal.</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Modal search
