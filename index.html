@@ -911,11 +911,80 @@
         let modalSearchTerm = '';
 
         // Load starred items from localStorage or use defaults
-        let starredItems = JSON.parse(localStorage.getItem('starredItems')) || [
+        const defaultStarredItems = [
             'mcnuggets-20pc',
             'double-cheeseburger',
             'sweet-sour-sauce'
         ];
+        let starredItems;
+        try {
+            const stored = JSON.parse(localStorage.getItem('starredItems'));
+            starredItems = Array.isArray(stored) ? stored : defaultStarredItems;
+        } catch (error) {
+            starredItems = defaultStarredItems;
+        }
+
+        function safeNumber(value) {
+            return Number.isFinite(value) ? value : 0;
+        }
+
+        const DEBUG_MODE = (() => {
+            try {
+                return typeof window !== 'undefined' &&
+                    window.location &&
+                    new URLSearchParams(window.location.search).has('debug');
+            } catch (error) {
+                return false;
+            }
+        })();
+
+        let debugPanel = null;
+
+        function ensureDebugPanel() {
+            if (!DEBUG_MODE || debugPanel) {
+                return debugPanel;
+            }
+            debugPanel = document.createElement('pre');
+            debugPanel.id = 'debugPanel';
+            debugPanel.style.position = 'fixed';
+            debugPanel.style.right = '12px';
+            debugPanel.style.bottom = '12px';
+            debugPanel.style.padding = '10px 12px';
+            debugPanel.style.background = 'rgba(0, 0, 0, 0.8)';
+            debugPanel.style.color = '#fff';
+            debugPanel.style.fontSize = '12px';
+            debugPanel.style.lineHeight = '1.3';
+            debugPanel.style.borderRadius = '8px';
+            debugPanel.style.zIndex = '2000';
+            debugPanel.style.maxWidth = '240px';
+            debugPanel.style.whiteSpace = 'pre-wrap';
+            document.body.appendChild(debugPanel);
+            return debugPanel;
+        }
+
+        function updateDebugPanel(totals) {
+            if (!DEBUG_MODE) {
+                return;
+            }
+            const panel = ensureDebugPanel();
+            if (!panel) {
+                return;
+            }
+            const includedCount = selectedItems.filter(item => item.included).length;
+            panel.textContent = [
+                'DEBUG',
+                `items: ${selectedItems.length}`,
+                `included: ${includedCount}`,
+                `kcal: ${Math.round(totals.energyCal)}`,
+                `kJ: ${Math.round(totals.energyKJ)}`,
+                `protein: ${totals.protein.toFixed(1)}g`,
+                `fat: ${totals.fat.toFixed(1)}g`,
+                `sat fat: ${totals.saturatedFat.toFixed(1)}g`,
+                `carbs: ${totals.carbs.toFixed(1)}g`,
+                `sugars: ${totals.sugars.toFixed(1)}g`,
+                `sodium: ${Math.round(totals.sodium)}mg`
+            ].join('\n');
+        }
 
         // DV Reference Values (based on 2000 calorie diet)
         const DV = {
@@ -941,15 +1010,18 @@
             };
 
             included.forEach(item => {
-                const n = item.product.nutrition.perServe;
-                totals.energyKJ += n.energyKJ;
-                totals.energyCal += n.energyCal;
-                totals.protein += n.protein;
-                totals.fat += n.fat;
-                totals.saturatedFat += n.saturatedFat;
-                totals.carbs += n.carbs;
-                totals.sugars += n.sugars;
-                totals.sodium += n.sodium;
+                const n = item.product && item.product.nutrition && item.product.nutrition.perServe;
+                if (!n) {
+                    return;
+                }
+                totals.energyKJ += safeNumber(n.energyKJ);
+                totals.energyCal += safeNumber(n.energyCal);
+                totals.protein += safeNumber(n.protein);
+                totals.fat += safeNumber(n.fat);
+                totals.saturatedFat += safeNumber(n.saturatedFat);
+                totals.carbs += safeNumber(n.carbs);
+                totals.sugars += safeNumber(n.sugars);
+                totals.sodium += safeNumber(n.sodium);
             });
 
             return totals;
@@ -969,8 +1041,17 @@
 
             document.getElementById('saturatedFat').innerHTML = `${totals.saturatedFat.toFixed(1)}g <span class="dv-percent" id="satFatDV">(${Math.round((totals.saturatedFat / DV.saturatedFat) * 100)}% DV)</span>`;
             document.getElementById('totalSugars').textContent = totals.sugars.toFixed(1) + 'g';
-            document.getElementById('totalSodium').innerHTML = `${Math.round(totals.sodium)}mg <span class="dv-percent">(${Math.round((totals.sodium / DV.sodium) * 100)}% DV)</span>`;
+            const sodiumEl = document.getElementById('totalSodium');
+            const sodiumDVEl = document.getElementById('sodiumDV');
+            if (sodiumEl) {
+                sodiumEl.textContent = `${Math.round(totals.sodium)}mg `;
+                if (sodiumDVEl) {
+                    sodiumEl.appendChild(sodiumDVEl);
+                    sodiumDVEl.textContent = `(${Math.round((totals.sodium / DV.sodium) * 100)}% DV)`;
+                }
+            }
             document.getElementById('totalEnergyKJ').textContent = Math.round(totals.energyKJ) + 'kJ';
+            updateDebugPanel(totals);
         }
 
         // Render items list
@@ -979,7 +1060,8 @@
             const itemCount = document.getElementById('itemCount');
             const itemsFooter = document.getElementById('itemsFooter');
 
-            itemCount.textContent = selectedItems.length;
+            const includedCount = selectedItems.filter(item => item.included).length;
+            itemCount.textContent = includedCount;
 
             if (selectedItems.length === 0) {
                 itemsList.innerHTML = `
